@@ -2,7 +2,7 @@
 
 A chess engine created in Python using the Pygame library. This project allows users to play chess against an AI or another player, with a graphical interface powered by Pygame.
 
-!![chessgif.gif](chessgif.gif)
+<img src="https://images.chesscomfiles.com/uploads/v1/images_users/tiny_mce/SamCopeland/phpuTejFE.gif" width="200" height="200">
 
 ## Features
 
