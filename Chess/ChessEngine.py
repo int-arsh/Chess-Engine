@@ -55,27 +55,27 @@ class GameState:
             kingRow = self.blackKingLocation[0]
             kingCol = self.blackKingLocation[1]
         if self.inCheck:
-            if len(self.checks) == 1: # only 1 check, block check or move king
+            if len(self.checks) == 1:  # only 1 check, block check or move king
                 moves = self.getAllPossibleMoves()
                 # to block a check move a piece into one of the squares bw the ep and k
-                check = self.checks[0] # check information
+                check = self.checks[0]  # check information
                 checkRow = check[0]
                 checkCol = check[1]
-                pieceChecking = self.board[checkRow][checkCol] # enemy piece causing check
+                pieceChecking = self.board[checkRow][checkCol]  # enemy piece causing check
                 validSquares = []  # squares that pieces can move to
                 # if knight, must capture knight or move king, other pieces can be blocked
                 if pieceChecking[1] == 'N':
                     validSquares = [(checkRow, checkCol)]
                 else:
                     for i in range(1, 8):
-                        validSquare = (kingRow + check[2] * i, kingCol + check[3] * i) # check[2] and check[3] are the check direction
+                        validSquare = (kingRow + check[2] * i, kingCol + check[3] * i)  # check[2] and check[3] are the check direction
                         validSquares.append(validSquare)
-                        if validSquare[0] == checkRow and validSquare[1] == checkCol: # once you get to piece and checks
+                        if validSquare[0] == checkRow and validSquare[1] == checkCol:  # once you get to piece and checks
                             break
                 # get rid of any moves that don't block check or move king
                 for i in range(len(moves) - 1, -1, -1):  # go through backwards when you are removing from a list as iterating
-                    if moves[i].pieceMoved[1] != 'K':  # move doesn't move king so it must block or capture
-                        if not (moves[i].endRow, moves[i].endCol) in validSquares: # moves doesn't block check or capture piece
+                    if moves[i].pieceMoved[1] != 'K':  # move doesn't move king, so it must block or capture
+                        if not (moves[i].endRow, moves[i].endCol) in validSquares:  # moves doesn't block check or capture piece
                             moves.remove(moves[i])
             else:  # double check, king has to move
                 self.getKingMoves(kingRow, kingCol, moves)
@@ -137,7 +137,7 @@ class GameState:
             endCol = startCol + m[1]
             if 0 <= endRow < 8 and 0 <= endCol < 8:
                 endPiece = self.board[endRow][endCol]
-                if endPiece[0] == enemyColor and endPiece[1] == 'N': # enemy knight attacking king
+                if endPiece[0] == enemyColor and endPiece[1] == 'N':  # enemy knight attacking king
                     inCheck = True
                     checks.append((endRow, endCol, m[0], m[1]))
         return inCheck, pins, checks
