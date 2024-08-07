@@ -42,7 +42,7 @@ class GameState:
                 self.blackKingLocation = (move.startRow, move.startCol)
 
 
-    def getValidMoves(self):
+    def getValidMoves(self):  # naive algorithm
         moves = self.getAllPossibleMoves()
         for i in range(len(moves) - 1, -1, -1):
             self.makeMove(moves[i])
