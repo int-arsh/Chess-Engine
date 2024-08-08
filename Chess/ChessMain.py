@@ -16,12 +16,12 @@ font = p.font.Font(None, 20)
 def loadImages():
     pieces = ['wp', 'wR', 'wN', 'wB', 'wK', 'wQ', 'bp', 'bR', 'bN', 'bB', 'bK', 'bQ']
     for piece in pieces:
-        IMAGES[piece] = p.transform.scale(p.image.load('D:/Code/Python1/ChessE/Chess/Chess/images/'+piece+'.png'), (SQ_SIZE,SQ_SIZE))
+        IMAGES[piece] = p.transform.scale(p.image.load('D:/Code/Python1/ChessE/Chess/Chess/images/'+piece+'.png'), (SQ_SIZE, SQ_SIZE))
     # print(IMAGES)
 
 def main():
 
-    screen = p.display.set_mode((WIDTH,HEIGHT))
+    screen = p.display.set_mode((WIDTH, HEIGHT))
     clock = p.time.Clock()
     screen.fill(p.Color("white"))
     gs = ChessEngine.GameState()
@@ -44,21 +44,22 @@ def main():
                 col = location[0] // SQ_SIZE
                 row = location[1] // SQ_SIZE
                 # print(col,row)
-                if sqSelected == (row,col):
+                if sqSelected == (row, col):  # if you click the same square twice
                     sqSelected = ()
                     playerClicks = []
                 else:
-                    sqSelected = (row,col)
-                    playerClicks.append(sqSelected)
-                if len(playerClicks) == 2:
-                    move = ChessEngine.Move(playerClicks[0],playerClicks[1],gs.board)
-                    if move in validMoves:
-                        gs.makeMove(move)
-                        print(move.getChessNotation())
-                        moveMade = True
-                        sqSelected = ()
-                        playerClicks = []
-                    else:
+                    sqSelected = (row, col)
+                    playerClicks.append(sqSelected)  # append 1st and 2nd click
+                if len(playerClicks) == 2:  # after second click
+                    move = ChessEngine.Move(playerClicks[0], playerClicks[1], gs.board)
+                    print(move.getChessNotation())
+                    for i in range(len(validMoves)):
+                        if move == validMoves[i]:
+                            gs.makeMove(validMoves[i])
+                            moveMade = True
+                            sqSelected = ()  # reset user clicks
+                            playerClicks = []
+                    if not moveMade:
                         playerClicks = [sqSelected]
             elif e.type == p.KEYDOWN:
                 if e.key == p.K_u:
@@ -73,7 +74,7 @@ def main():
         p.display.flip()
 
 
-def drawGameState(screen,gs):
+def drawGameState(screen, gs):
     drawBoard(screen)
     drawPieces(screen, gs.board)
 
@@ -101,7 +102,7 @@ def drawPieces(screen, board):
         for c in range(DIMENSION):
             piece = board[r][c]
             if piece != "--":
-                screen.blit(IMAGES[piece],p.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE))
+                screen.blit(IMAGES[piece], p.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE))
 
 
 if __name__ == '__main__':
