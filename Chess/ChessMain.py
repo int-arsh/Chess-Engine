@@ -31,38 +31,46 @@ def main():
     running = True
     sqSelected = ()
     playerClicks = []
+    gameOver = False
     while running:
         for e in p.event.get():
             if e.type == p.QUIT:
                 running = False
             elif e.type == p.MOUSEBUTTONDOWN:
-                location = p.mouse.get_pos()
-                # print(location)
-                col = location[0] // SQ_SIZE
-                row = location[1] // SQ_SIZE
-                # print(col,row)
-                if sqSelected == (row, col):  # if you click the same square twice
-                    sqSelected = ()
-                    playerClicks = []
-                else:
-                    sqSelected = (row, col)
-                    playerClicks.append(sqSelected)  # append 1st and 2nd click
-                if len(playerClicks) == 2:  # after second click
-                    move = ChessEngine.Move(playerClicks[0], playerClicks[1], gs.board)
-                    print(move.getChessNotation())
-                    for i in range(len(validMoves)):
-                        if move == validMoves[i]:
-                            gs.makeMove(validMoves[i])
-                            moveMade = True
-                            animate = True
-                            sqSelected = ()  # reset user clicks
-                            playerClicks = []
-                    if not moveMade:
-                        playerClicks = [sqSelected]
+                if not gameOver:
+                    location = p.mouse.get_pos()
+                    col = location[0] // SQ_SIZE
+                    row = location[1] // SQ_SIZE
+                    if sqSelected == (row, col):  # if you click the same square twice
+                        sqSelected = ()
+                        playerClicks = []
+                    else:
+                        sqSelected = (row, col)
+                        playerClicks.append(sqSelected)  # append 1st and 2nd click
+                    if len(playerClicks) == 2:  # after second click
+                        move = ChessEngine.Move(playerClicks[0], playerClicks[1], gs.board)
+                        print(move.getChessNotation())
+                        for i in range(len(validMoves)):
+                            if move == validMoves[i]:
+                                gs.makeMove(validMoves[i])
+                                moveMade = True
+                                animate = True
+                                sqSelected = ()  # reset user clicks
+                                playerClicks = []
+                        if not moveMade:
+                            playerClicks = [sqSelected]
+            # key handlers
             elif e.type == p.KEYDOWN:
                 if e.key == p.K_u:
                     gs.undoMove()
                     moveMade = True
+                    animate = False
+                if e.key == p.K_r:
+                    gs = ChessEngine.GameState()
+                    validMoves = gs.getValidMoves()
+                    sqSelected = ()
+                    playerClicks = []
+                    moveMade = False
                     animate = False
 
         if moveMade:
@@ -71,7 +79,19 @@ def main():
             validMoves = gs.getValidMoves()
             moveMade = False
             animate = False
+
         drawGameState(screen, gs, validMoves, sqSelected)
+
+        if gs.checkMate:
+            gameOver = True
+            if gs.whiteToMove:
+                drawText(screen, 'Black wins by checkmate!')
+            else:
+                drawText(screen, 'White wins by checkmate!')
+        elif gs.staleMate:
+            gameOver = True
+            drawText(screen, 'Stalemate!')
+
         clock.tick(MAX_FPS)
         p.display.flip()
 
@@ -143,12 +163,21 @@ def animateMove(move, screen, board, clock):
         endSquare = p.Rect(move.endCol*SQ_SIZE, move.endRow*SQ_SIZE, SQ_SIZE, SQ_SIZE)
         p.draw.rect(screen, color, endSquare)
         # draw captured piece into rectangle
-        if move.pieceCaptured != '--':
+        if move.pieceCaptured != '--' and not move.isEnpassantMove:
             screen.blit(IMAGES[move.pieceCaptured], endSquare)
         # draw moving piece
         screen.blit(IMAGES[move.pieceMoved], p.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE))
         p.display.flip()
         clock.tick(60)
+
+def drawText(screen, text):
+    font2 = p.font.SysFont("Helvetica", 32, True, False)
+    textObject = font2.render(text, 0, p.Color('Gray'))
+    textLocation = p.Rect(0, 0, WIDTH, HEIGHT).move(WIDTH/2 - textObject.get_width()/2,
+                                                    HEIGHT/2 - textObject.get_height()/2)
+    screen.blit(textObject, textLocation)
+    textObject = font2.render(text, 0, p.Color('Black'))
+    screen.blit(textObject, textLocation.move(2, 2))
 
 
 if __name__ == '__main__':
