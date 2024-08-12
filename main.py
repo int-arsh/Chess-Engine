@@ -31,13 +31,12 @@ def main():
     running = True
     sqSelected = ()
     playerClicks = []
-    gameOver = False
     while running:
         for e in p.event.get():
             if e.type == p.QUIT:
                 running = False
             elif e.type == p.MOUSEBUTTONDOWN:
-                if not gameOver:
+                if not gs.isGameOver:
                     location = p.mouse.get_pos()
                     col = location[0] // SQ_SIZE
                     row = location[1] // SQ_SIZE
@@ -83,13 +82,13 @@ def main():
         drawGameState(screen, gs, validMoves, sqSelected)
 
         if gs.checkMate:
-            gameOver = True
+            gs.isGameOver = True
             if gs.whiteToMove:
                 drawText(screen, 'Black wins by checkmate!')
             else:
                 drawText(screen, 'White wins by checkmate!')
         elif gs.staleMate:
-            gameOver = True
+            gs.isGameOver = True
             drawText(screen, 'Stalemate!')
 
         clock.tick(MAX_FPS)
