@@ -1,5 +1,5 @@
 import pygame as p
-import ChessEngine
+import ChessEngine, aimove
 
 p.init()
 
@@ -31,12 +31,15 @@ def main():
     running = True
     sqSelected = ()
     playerClicks = []
+    playerOne = True  # If a Human is playing white, then True. If an AI is playing, then False
+    playerTwo = False  # Same as above but for black
     while running:
+        humanTurn = (gs.whiteToMove and playerOne) or (not gs.whiteToMove and playerTwo)
         for e in p.event.get():
             if e.type == p.QUIT:
                 running = False
             elif e.type == p.MOUSEBUTTONDOWN:
-                if not gs.isGameOver:
+                if not gs.isGameOver and humanTurn:
                     location = p.mouse.get_pos()
                     col = location[0] // SQ_SIZE
                     row = location[1] // SQ_SIZE
@@ -71,6 +74,15 @@ def main():
                     playerClicks = []
                     moveMade = False
                     animate = False
+
+        # AI move finder
+        if not gs.isGameOver and not humanTurn:
+            AIMove = aimove.findBestMove(gs, validMoves)
+            if AIMove is None:
+                AIMove = aimove.findRandomMove(validMoves)
+            gs.makeMove(AIMove)
+            moveMade = True
+            animate = True
 
         if moveMade:
             if animate:
