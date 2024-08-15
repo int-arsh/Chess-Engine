@@ -26,6 +26,7 @@ def main():
     gs = ChessEngine.GameState()
     validMoves = gs.getValidMoves()
     moveMade = False
+    gameOver = False
     animate = False  # flag variable for when we should animate a move
     loadImages()
     running = True
@@ -39,7 +40,7 @@ def main():
             if e.type == p.QUIT:
                 running = False
             elif e.type == p.MOUSEBUTTONDOWN:
-                if not gs.isGameOver and humanTurn:
+                if not gameOver and humanTurn:
                     location = p.mouse.get_pos()
                     col = location[0] // SQ_SIZE
                     row = location[1] // SQ_SIZE
@@ -67,6 +68,7 @@ def main():
                     gs.undoMove()
                     moveMade = True
                     animate = False
+                    gameOver = False
                 if e.key == p.K_r:
                     gs = ChessEngine.GameState()
                     validMoves = gs.getValidMoves()
@@ -74,9 +76,10 @@ def main():
                     playerClicks = []
                     moveMade = False
                     animate = False
+                    gameOver = False
 
         # AI move finder
-        if not gs.isGameOver and not humanTurn:
+        if not gameOver and not humanTurn:
             AIMove = aimove.findBestMove(gs, validMoves)
             if AIMove is None:
                 AIMove = aimove.findRandomMove(validMoves)
@@ -94,13 +97,13 @@ def main():
         drawGameState(screen, gs, validMoves, sqSelected)
 
         if gs.checkMate:
-            gs.isGameOver = True
+            gameOver = True
             if gs.whiteToMove:
                 drawText(screen, 'Black wins by checkmate!')
             else:
                 drawText(screen, 'White wins by checkmate!')
         elif gs.staleMate:
-            gs.isGameOver = True
+            gameOver = True
             drawText(screen, 'Stalemate!')
 
         clock.tick(MAX_FPS)

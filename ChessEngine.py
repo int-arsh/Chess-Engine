@@ -17,7 +17,6 @@ class GameState:
         self.blackKingLocation = (0, 4)
         self.checkMate = False
         self.staleMate = False
-        self.isGameOver = False
         self.enpassantPossible = ()  # coordinates for the square where the enpassant could be possible
         self.currentCastlingRight = CastleRights(True, True, True, True)
         self.castleRightsLog = [CastleRights(self.currentCastlingRight.wks, self.currentCastlingRight.bks,
@@ -98,9 +97,8 @@ class GameState:
                     self.board[move.endRow][move.endCol - 2] = self.board[move.endRow][move.endCol + 1]  # move back the rook
                     self.board[move.endRow][move.endCol + 1] = '--'  # erase the rook
 
-            if self.isGameOver:
-                self.isGameOver = False
-
+            self.checkMate = False
+            self.staleMate = False
 
     def updateCastleRights(self, move):
         if move.pieceMoved == 'wK':
@@ -149,10 +147,8 @@ class GameState:
         if len(moves) == 0:  # either checkmate or stalemate
             if self.inCheck():
                 self.checkMate = True
-                self.isGameOver = True
             else:
                 self.staleMate = True
-                self.isGameOver = True
         else:
             self.checkMate = False
             self.staleMate = False
