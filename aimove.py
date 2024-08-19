@@ -8,8 +8,9 @@ DEPTH = 3
 def findRandomMove(validMoves):
     return validMoves[random.randint(0, len(validMoves)-1)]
 
+# Minmax without recursion
 
-def findBestMove(gs, validMoves):  # called for AI move
+def findBestMoveMinMaxNoRecursion(gs, validMoves):  # called for AI move
     turnMultiplier = 1 if gs.whiteToMove else -1  # say -1 as AI move (black)
     opponentMinMaxScore = CHECKMATE  # 1000
     bestPlayerMove = None
@@ -45,10 +46,15 @@ def findBestMove(gs, validMoves):  # called for AI move
 '''
 Helper method to make first recursive call
 '''
-def findBestMoveMinMax(gs, validMoves):
-    global nextMove
+def findBestMove(gs, validMoves):
+    global nextMove, counter
     nextMove = None  # if it doesn't find a move then it picks a random move
-    findMoveMinMax(gs, validMoves, DEPTH, gs.whiteToMove)
+    random.shuffle(validMoves)
+    counter = 0
+    # findMoveMinMax(gs, validMoves, DEPTH, gs.whiteToMove)
+    # findMoveNegaMax(gs, validMoves, DEPTH, 1 if gs.whiteToMove else -1)
+    findMoveNegaMaxAlphaBeta(gs, validMoves, DEPTH, -CHECKMATE, CHECKMATE, 1 if gs.whiteToMove else -1)
+    print(counter)
     return nextMove
 
 def findMoveMinMax(gs, validMoves, depth, whiteToMove):
@@ -81,6 +87,49 @@ def findMoveMinMax(gs, validMoves, depth, whiteToMove):
                     nextMove = move
             gs.undoMove()
         return minScore
+
+
+def findMoveNegaMax(gs, validMoves, depth, turnMultiplier):
+    global nextMove, counter
+    counter += 1
+    if depth == 0:
+        return turnMultiplier * scoreBoard(gs)
+
+    maxScore = -CHECKMATE
+    for move in validMoves:
+        gs.makeMove(move)
+        nextMoves = gs.getValidMoves()
+        score = -findMoveNegaMax(gs, nextMoves, depth-1, -turnMultiplier)
+        if score > maxScore:
+            maxScore = score
+            if depth == DEPTH:
+                nextMove = move
+        gs.undoMove()
+    return maxScore
+
+
+def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultiplier):
+    global nextMove, counter
+    counter += 1
+    if depth == 0:
+        return turnMultiplier * scoreBoard(gs)
+
+    maxScore = -CHECKMATE
+    for move in validMoves:
+        gs.makeMove(move)
+        nextMoves = gs.getValidMoves()
+        score = -findMoveNegaMaxAlphaBeta(gs, nextMoves, depth-1, -beta, -alpha, -turnMultiplier)
+        if score > maxScore:
+            maxScore = score
+            if depth == DEPTH:
+                nextMove = move
+        gs.undoMove()
+        if maxScore > alpha:  # pruning happen
+            alpha = maxScore
+        if alpha >= beta:
+            break
+    return maxScore
+
 
 def scoreBoard(gs):
     if gs.checkMate:
