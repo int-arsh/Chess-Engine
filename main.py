@@ -37,7 +37,7 @@ def main():
     sqSelected = ()
     playerClicks = []
     playerOne = True  # If a Human is playing white, then True. If an AI is playing, then False
-    playerTwo = True  # Same as above but for black
+    playerTwo = False  # Same as above but for black
     while running:
         humanTurn = (gs.whiteToMove and playerOne) or (not gs.whiteToMove and playerTwo)
         for e in p.event.get():
