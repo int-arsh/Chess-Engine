@@ -85,7 +85,7 @@ STALEMATE = 0
 DEPTH = 3
 
 def findRandomMove(validMoves):
-    return validMoves[random.randint(0, len(validMoves)-1)]
+    return random.choice(validMoves)
 
 # Minmax without recursion
 
@@ -218,8 +218,8 @@ def scoreBoard(gs):
         return STALEMATE
 
     score = 0
-    for row in range(len(gs.board)):  # 8
-        for col in range(len(gs.board[row])):  # 8
+    for row in range(gs.board.shape[0]):  # 8
+        for col in range(gs.board.shape[1]):  # 8
             square = gs.board[row][col]  # going through each sq on board
             if square != "--":  # if there is piece
                 piece_type = square[1]

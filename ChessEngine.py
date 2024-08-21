@@ -166,7 +166,7 @@ class GameState:
             self.staleMate = False
         self.enpassantPossible = tempEnpassantPossible
         self.currentCastlingRight = tempCastleRights
-        return moves
+        return np.array(moves)
 
 
     # determine if current player is in check

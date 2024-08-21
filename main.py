@@ -38,7 +38,7 @@ def main():
     sqSelected = ()
     playerClicks = []
     playerOne = True  # If a Human is playing white, then True. If an AI is playing, then False
-    playerTwo = True  # Same as above but for black
+    playerTwo = False  # Same as above but for black
     AIThinking = False
     moveFinderProcess = None
     moveUndone = False
