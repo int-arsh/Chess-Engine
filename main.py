@@ -1,5 +1,6 @@
 import pygame as p
 import ChessEngine, aimove
+from multiprocessing import Process, Queue
 
 p.init()
 
@@ -37,14 +38,18 @@ def main():
     sqSelected = ()
     playerClicks = []
     playerOne = True  # If a Human is playing white, then True. If an AI is playing, then False
-    playerTwo = False  # Same as above but for black
+    playerTwo = True  # Same as above but for black
+    AIThinking = False
+    moveFinderProcess = None
+    moveUndone = False
     while running:
         humanTurn = (gs.whiteToMove and playerOne) or (not gs.whiteToMove and playerTwo)
         for e in p.event.get():
             if e.type == p.QUIT:
                 running = False
+            # mouse handler
             elif e.type == p.MOUSEBUTTONDOWN:
-                if not gameOver and humanTurn:
+                if not gameOver:
                     location = p.mouse.get_pos()
                     col = location[0] // SQ_SIZE
                     row = location[1] // SQ_SIZE
@@ -54,7 +59,7 @@ def main():
                     else:
                         sqSelected = (row, col)
                         playerClicks.append(sqSelected)  # append 1st and 2nd click
-                    if len(playerClicks) == 2:  # after second click
+                    if len(playerClicks) == 2 and humanTurn:  # after second click
                         move = ChessEngine.Move(playerClicks[0], playerClicks[1], gs.board)
                         print(move.getChessNotation())
                         for i in range(len(validMoves)):
@@ -73,6 +78,10 @@ def main():
                     moveMade = True
                     animate = False
                     gameOver = False
+                    if AIThinking:
+                        moveFinderProcess.terminate()
+                        AIThinking = False
+                    moveUndone = True
                 if e.key == p.K_r:
                     gs = ChessEngine.GameState()
                     validMoves = gs.getValidMoves()
@@ -81,15 +90,29 @@ def main():
                     moveMade = False
                     animate = False
                     gameOver = False
+                    if AIThinking:
+                        moveFinderProcess.terminate()
+                        AIThinking = False
+                    moveUndone = True
 
         # AI move finder
-        if not gameOver and not humanTurn:
-            AIMove = aimove.findBestMove(gs, validMoves)
-            if AIMove is None:
-                AIMove = aimove.findRandomMove(validMoves)
-            gs.makeMove(AIMove)
-            moveMade = True
-            animate = True
+        if not gameOver and not humanTurn and not moveUndone:
+            if not AIThinking:
+                AIThinking = True
+                print("thinking...")
+                returnQueue = Queue()  # used to pass data between threads
+                moveFinderProcess = Process(target=aimove.findBestMove, args=(gs, validMoves, returnQueue))
+                moveFinderProcess.start()  # call findBestMove(gs, validMoves, returnQueue)
+
+            if not moveFinderProcess.is_alive():
+                print("done thinking")
+                AIMove = returnQueue.get()
+                if AIMove is None:
+                    AIMove = aimove.findRandomMove(validMoves)
+                gs.makeMove(AIMove)
+                moveMade = True
+                animate = True
+                AIThinking = False
 
         if moveMade:
             if animate:

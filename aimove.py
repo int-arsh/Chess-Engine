@@ -1,79 +1,79 @@
 import random
+import numpy as np
 
 pieceScore = {"K": 0, "Q": 9, "R": 5, "B": 3, "N": 3, "p": 1}
 
-
-knightScores = [[1, 1, 1, 1, 1, 1, 1, 1],
+knightScores = np.array([[1, 1, 1, 1, 1, 1, 1, 1],
                 [1, 2, 2, 2, 2, 2, 2, 1],
                 [1, 2, 3, 3, 3, 3, 2, 1],
                 [1, 2, 3, 4, 4, 3, 2, 1],
                 [1, 2, 3, 4, 4, 3, 2, 1],
                 [1, 2, 3, 3, 3, 3, 2, 1],
                 [1, 2, 2, 2, 2, 2, 2, 1],
-                [1, 1, 1, 1, 1, 1, 1, 1]]
+                [1, 1, 1, 1, 1, 1, 1, 1]])
 
-bishopScores = [[4, 3, 2, 1, 1, 2, 3, 4],
+bishopScores = np.array([[4, 3, 2, 1, 1, 2, 3, 4],
                 [3, 4, 3, 2, 2, 3, 4, 3],
                 [2, 3, 4, 3, 3, 4, 3, 2],
                 [1, 2, 3, 4, 4, 3, 2, 1],
                 [1, 2, 3, 4, 4, 3, 2, 1],
                 [2, 3, 4, 3, 3, 4, 3, 2],
                 [3, 4, 3, 2, 2, 3, 4, 3],
-                [4, 3, 2, 1, 1, 2, 3, 4]]
+                [4, 3, 2, 1, 1, 2, 3, 4]])
 
-queenScores = [[1, 1, 1, 3, 1, 1, 1, 1],
+queenScores = np.array([[1, 1, 1, 3, 1, 1, 1, 1],
                [1, 2, 3, 3, 3, 1, 1, 1],
                [1, 4, 3, 3, 3, 4, 2, 1],
                [1, 2, 3, 3, 3, 2, 2, 1],
                [1, 2, 3, 3, 3, 2, 2, 1],
                [1, 4, 3, 3, 3, 4, 2, 1],
                [1, 1, 2, 3, 3, 1, 1, 1],
-               [1, 1, 1, 3, 1, 1, 1, 1]]
+               [1, 1, 1, 3, 1, 1, 1, 1]])
 
-rockScores = [[4, 3, 4, 4, 4, 4, 3, 4],
+rockScores = np.array([[4, 3, 4, 4, 4, 4, 3, 4],
               [4, 4, 4, 4, 4, 4, 4, 4],
               [1, 1, 2, 3, 3, 2, 1, 1],
               [1, 2, 3, 4, 4, 3, 2, 1],
               [1, 2, 3, 4, 4, 3, 2, 1],
               [1, 1, 2, 2, 2, 2, 1, 1],
               [4, 4, 4, 4, 4, 4, 4, 4],
-              [4, 3, 4, 4, 4, 4, 3, 4]]
+              [4, 3, 4, 4, 4, 4, 3, 4]])
 
-whitePawnScores = [[8, 8, 8, 8, 8, 8, 8, 8],
+whitePawnScores = np.array([[8, 8, 8, 8, 8, 8, 8, 8],
                    [8, 8, 8, 8, 8, 8, 8, 8],
                    [5, 6, 6, 7, 7, 6, 6, 5],
                    [2, 3, 3, 5, 5, 3, 3, 2],
                    [1, 2, 3, 4, 4, 3, 2, 1],
                    [1, 1, 2, 3, 3, 2, 1, 1],
                    [1, 1, 1, 0, 0, 1, 1, 1],
-                   [0, 0, 0, 0, 0, 0, 0, 0]]
+                   [0, 0, 0, 0, 0, 0, 0, 0]])
 
-blackPawnScores = [[0, 0, 0, 0, 0, 0, 0, 0],
+blackPawnScores = np.array([[0, 0, 0, 0, 0, 0, 0, 0],
                    [1, 1, 1, 0, 0, 1, 1, 1],
                    [1, 1, 2, 3, 3, 2, 1, 1],
                    [1, 2, 3, 4, 4, 3, 2, 1],
                    [2, 3, 3, 5, 5, 3, 3, 2],
                    [5, 6, 6, 7, 7, 6, 6, 5],
                    [8, 8, 8, 8, 8, 8, 8, 8],
-                   [8, 8, 8, 8, 8, 8, 8, 8]]
+                   [8, 8, 8, 8, 8, 8, 8, 8]])
 
-whiteKingScores = [[3, 4, 4, 5, 5, 4, 4, 3],
+whiteKingScores = np.array([[3, 4, 4, 5, 5, 4, 4, 3],
                    [3, 4, 4, 5, 5, 4, 4, 3],
                    [3, 4, 4, 5, 5, 4, 4, 3],
                    [3, 4, 4, 5, 5, 4, 4, 3],
                    [2, 3, 3, 4, 4, 3, 3, 2],
                    [1, 2, 2, 2, 2, 2, 2, 1],
                    [2, 2, 0, 0, 0, 0, 2, 2],
-                   [2, 3, 1, 0, 0, 1, 3, 2]]
+                   [2, 3, 1, 0, 0, 1, 3, 2]])
 
-blackKingScores = [[2, 3, 1, 0, 0, 1, 3, 2],
+blackKingScores = np.array([[2, 3, 1, 0, 0, 1, 3, 2],
                    [2, 2, 0, 0, 0, 0, 2, 2],
                    [1, 2, 2, 2, 2, 2, 2, 1],
                    [2, 3, 3, 4, 4, 3, 3, 2],
                    [3, 4, 4, 5, 5, 4, 4, 3],
                    [3, 4, 4, 5, 5, 4, 4, 3],
                    [3, 4, 4, 5, 5, 4, 4, 3],
-                   [3, 4, 4, 5, 5, 4, 4, 3]]
+                   [3, 4, 4, 5, 5, 4, 4, 3]])
 
 
 
@@ -125,7 +125,7 @@ def findBestMoveMinMaxNoRecursion(gs, validMoves):  # called for AI move
 '''
 Helper method to make first recursive call
 '''
-def findBestMove(gs, validMoves):
+def findBestMove(gs, validMoves, returnQueue):
     global nextMove, counter
     nextMove = None  # if it doesn't find a move then it picks a random move
     random.shuffle(validMoves)
@@ -134,7 +134,7 @@ def findBestMove(gs, validMoves):
     # findMoveNegaMax(gs, validMoves, DEPTH, 1 if gs.whiteToMove else -1)
     findMoveNegaMaxAlphaBeta(gs, validMoves, DEPTH, -CHECKMATE, CHECKMATE, 1 if gs.whiteToMove else -1)
     print(counter)
-    return nextMove
+    returnQueue.put(nextMove)
 
 def findMoveMinMax(gs, validMoves, depth, whiteToMove):
     global nextMove
@@ -213,10 +213,7 @@ def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultiplier)
 
 def scoreBoard(gs):
     if gs.checkMate:
-        if gs.whiteToMove:
-            return -CHECKMATE  # black wins
-        else:
-            return CHECKMATE
+        return -CHECKMATE if gs.whiteToMove else CHECKMATE  # black wins
     elif gs.staleMate:
         return STALEMATE
 
@@ -225,18 +222,20 @@ def scoreBoard(gs):
         for col in range(len(gs.board[row])):  # 8
             square = gs.board[row][col]  # going through each sq on board
             if square != "--":  # if there is piece
-                # score it positionally
-                piecePositionScore = 0
-                if square[1] == "p" or square[1] == "K":  # for pawns
-                    piecePositionScore = piecePositionScores[square][row][col]
-                else:  # for other pieces
-                    piecePositionScore = piecePositionScores[square[1]][row][col]
+                piece_type = square[1]
+                piece_color = square[0]
 
-                if square[0] == 'w':
-                    score += pieceScore[square[1]] + piecePositionScore * .1
-                elif square[0] == 'b':
-                    score -= pieceScore[square[1]] + piecePositionScore * .1
-    return score
+                if piece_type in ["p", "K"]:  # For pawns and kings, differentiate between white and black
+                    piecePositionScore = piecePositionScores[piece_color + piece_type][row][col]
+                else:  # For other pieces like 'R', 'N', 'B', 'Q'
+                    piecePositionScore = piecePositionScores[piece_type][row][col]
+
+                # Calculate the piece score considering color
+                if piece_color == 'w':
+                    score += pieceScore[piece_type] + piecePositionScore * 0.1
+                elif piece_color == 'b':
+                    score -= pieceScore[piece_type] + piecePositionScore * 0.1
+    return round(score, 1)
 
 
 
