@@ -1,6 +1,7 @@
 import pygame as p
-import ChessEngine, aimove
+import ChessEngine, aimove, button
 from multiprocessing import Process, Queue
+
 
 p.init()
 
@@ -16,6 +17,121 @@ IMAGES = {}
 FONT_COLOR = (0, 0, 0)
 font = p.font.Font(None, 20)
 
+def mainMenu():
+    screen = p.display.set_mode((BOARD_WIDTH, BOARD_HEIGHT))
+    p.display.set_caption("Main Menu")
+    clock = p.time.Clock()
+
+
+    bg_image = p.image.load("images-menu/theme3.jpeg").convert()  # Adjust the path as necessary
+    bg_image = p.transform.scale(bg_image, (BOARD_HEIGHT, BOARD_WIDTH))  # Scale the image to fit the screen
+
+    # screen.fill(p.Color("blue"))
+
+    # load button images
+    quit_img = p.image.load("images-menu/quit.png").convert_alpha()
+    back_img = p.image.load("images-menu/back.png").convert_alpha()
+    vsAI_img = p.image.load("images-menu/vsAI.png").convert_alpha()
+    white_img = p.image.load("images-menu/white.png").convert_alpha()
+    black_img = p.image.load("images-menu/black.png").convert_alpha()
+    playas_img = p.image.load("images-menu/playas.png").convert_alpha()
+    passnplay_img = p.image.load("images-menu/passnplay.png").convert_alpha()
+    options_img = p.image.load("images-menu/options.png").convert_alpha()
+    play_img = p.image.load("images-menu/play.png").convert_alpha()
+
+    # create button instances
+    play_button = button.Button(75, 70, play_img, 1)
+    options_button = button.Button(75, 160, options_img, 1)
+    quit_button = button.Button(75, 250, quit_img, 1)
+
+    passnplay_button = button.Button(55, 70, passnplay_img, 1)
+    vsAI_button = button.Button(75, 160, vsAI_img, 1)
+    back_button = button.Button(75, 250, back_img, 1)
+
+    playas_button = button.Button(55, 155, playas_img, 1)
+
+    white_button = button.Button(75, 100, white_img, 1)
+    black_button = button.Button(75, 170, black_img, 1)
+
+    menu_state = "main"
+    clicked = False
+
+    run = True
+    while run:
+        # screen.fill(p.Color("light blue"))
+        screen.blit(bg_image, (0, 0))
+
+
+        if menu_state == "main":
+            if play_button.draw(screen) and not clicked:
+                menu_state = "play"
+                clicked = True
+                p.time.delay(150)
+            if quit_button.draw(screen):
+                run = False
+                clicked = True
+                p.time.delay(150)
+            if options_button.draw(screen):
+                menu_state = "options"
+                clicked = True
+                p.time.delay(150)
+
+
+        if menu_state == "play":
+            if passnplay_button.draw(screen) and not clicked:
+                run = False
+                main()
+                clicked = True
+                p.time.delay(150)
+            if vsAI_button.draw(screen) and not clicked:
+                menu_state = "AI"
+                clicked = True
+                p.time.delay(150)
+            if back_button.draw(screen) and not clicked:
+                menu_state = "main"
+                clicked = True
+                p.time.delay(150)
+
+        if menu_state == "options":
+            if back_button.draw(screen) and not clicked:
+                menu_state = "main"
+                clicked = True
+                p.time.delay(150)
+
+        if menu_state == "AI":
+            if playas_button.draw(screen) and not clicked:
+                menu_state = "playas"
+                clicked = True
+                p.time.delay(150)
+            if back_button.draw(screen) and not clicked:
+                menu_state = "play"
+                clicked = True
+                p.time.delay(150)
+
+        if menu_state == "playas":
+            if white_button.draw(screen) and not clicked:
+
+                clicked = True
+                p.time.delay(150)
+            if black_button.draw(screen) and not clicked:
+                clicked = True
+                p.time.delay(150)
+            if back_button.draw(screen) and not clicked:
+                menu_state = "AI"
+                clicked = True
+                p.time.delay(150)
+
+
+        for event in p.event.get():
+            if event.type == p.QUIT:
+                run = False
+            if event.type == p.MOUSEBUTTONDOWN:
+                clicked = False
+
+        p.display.flip()
+        clock.tick(MAX_FPS)
+
+
 
 def loadImages():
     pieces = ['wp', 'wR', 'wN', 'wB', 'wK', 'wQ', 'bp', 'bR', 'bN', 'bB', 'bK', 'bQ']
@@ -25,6 +141,7 @@ def loadImages():
 
 def main():
     screen = p.display.set_mode((BOARD_WIDTH + MOVE_LOG_PANEL_WIDTH, BOARD_HEIGHT))
+    p.display.set_caption("Main")
     clock = p.time.Clock()
     screen.fill(p.Color("white"))
     moveLogFont = p.font.SysFont("Aerial", 18, False, False)
@@ -34,7 +151,6 @@ def main():
     gameOver = False
     animate = False  # flag variable for when we should animate a move
     loadImages()
-    running = True
     sqSelected = ()
     playerClicks = []
     playerOne = True  # If a Human is playing white, then True. If an AI is playing, then False
@@ -42,6 +158,7 @@ def main():
     AIThinking = False
     moveFinderProcess = None
     moveUndone = False
+    running = True
     while running:
         humanTurn = (gs.whiteToMove and playerOne) or (not gs.whiteToMove and playerTwo)
         for e in p.event.get():
@@ -130,6 +247,7 @@ def main():
 
         clock.tick(MAX_FPS)
         p.display.flip()
+    mainMenu()
 
 
 def drawGameState(screen, gs, validMoves, sqSelected, moveLogFont):
@@ -246,4 +364,4 @@ def drawEndGameText(screen, text):
 
 
 if __name__ == '__main__':
-    main()
+    mainMenu()
