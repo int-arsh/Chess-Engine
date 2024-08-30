@@ -10,12 +10,23 @@ MOVE_LOG_PANEL_WIDTH = 250
 MOVE_LOG_PANEL_HEIGHT = BOARD_HEIGHT
 
 DIMENSION = 8
-SQ_SIZE = BOARD_HEIGHT // DIMENSION
+SQ_SIZE = BOARD_HEIGHT // DIMENSION  # 64
 MAX_FPS = 15
 IMAGES = {}
 
 FONT_COLOR = (0, 0, 0)
 font = p.font.Font(None, 20)
+
+# Load sound files
+start_sound = p.mixer.Sound('sounds/game-start.mp3')
+move_sound = p.mixer.Sound('sounds/move-self.mp3')
+move_sound_opponent = p.mixer.Sound('sounds/move-opponent.mp3')
+castle_sound = p.mixer.Sound('sounds/castle.mp3')
+capture_sound = p.mixer.Sound('sounds/capture.mp3')
+check_sound = p.mixer.Sound('sounds/move-check.mp3')
+promote_sound = p.mixer.Sound('sounds/promote.mp3')
+game_end_sound = p.mixer.Sound('sounds/game-end.mp3')
+
 
 def mainMenu():
     screen = p.display.set_mode((BOARD_WIDTH, BOARD_HEIGHT))
@@ -70,7 +81,6 @@ def mainMenu():
             if quit_button.draw(screen):
                 run = False
                 clicked = True
-                p.time.delay(150)
             if options_button.draw(screen):
                 menu_state = "options"
                 clicked = True
@@ -80,7 +90,7 @@ def mainMenu():
         if menu_state == "play":
             if passnplay_button.draw(screen) and not clicked:
                 run = False
-                main()
+                main(True, True)
                 clicked = True
                 p.time.delay(150)
             if vsAI_button.draw(screen) and not clicked:
@@ -110,17 +120,19 @@ def mainMenu():
 
         if menu_state == "playas":
             if white_button.draw(screen) and not clicked:
-
                 clicked = True
+                run = False
                 p.time.delay(150)
+                main(True, False)
             if black_button.draw(screen) and not clicked:
                 clicked = True
+                run = False
+                main(False, True)
                 p.time.delay(150)
             if back_button.draw(screen) and not clicked:
                 menu_state = "AI"
                 clicked = True
                 p.time.delay(150)
-
 
         for event in p.event.get():
             if event.type == p.QUIT:
@@ -139,7 +151,7 @@ def loadImages():
         IMAGES[piece] = p.transform.scale(p.image.load('images/'+piece+'.png'), (SQ_SIZE, SQ_SIZE))
     # print(IMAGES)
 
-def main():
+def main(playerOne=True, playerTwo=False):
     screen = p.display.set_mode((BOARD_WIDTH + MOVE_LOG_PANEL_WIDTH, BOARD_HEIGHT))
     p.display.set_caption("Main")
     clock = p.time.Clock()
@@ -153,12 +165,14 @@ def main():
     loadImages()
     sqSelected = ()
     playerClicks = []
-    playerOne = True  # If a Human is playing white, then True. If an AI is playing, then False
-    playerTwo = False  # Same as above but for black
+    # playerOne = True  # If a Human is playing white, then True. If an AI is playing, then False
+    # playerTwo = False  # Same as above but for black
     AIThinking = False
     moveFinderProcess = None
     moveUndone = False
+    gameEndSoundPlayed = False
     running = True
+    start_sound.play()
     while running:
         humanTurn = (gs.whiteToMove and playerOne) or (not gs.whiteToMove and playerTwo)
         for e in p.event.get():
@@ -181,11 +195,23 @@ def main():
                         print(move.getChessNotation())
                         for i in range(len(validMoves)):
                             if move == validMoves[i]:
-                                gs.makeMove(validMoves[i])
+                                if move.isPawnPromotion:
+                                    gs.makeMove(validMoves[i], getPromotionChoice, screen)
+                                else:
+                                    gs.makeMove(validMoves[i])
                                 moveMade = True
                                 animate = True
                                 sqSelected = ()  # reset user clicks
                                 playerClicks = []
+                                if gs.inCheck():
+                                    check_sound.play()
+                                elif move.pieceCaptured == "--":
+                                    if not gs.whiteToMove:
+                                        move_sound.play()
+                                    else:
+                                        move_sound_opponent.play()
+                                else:
+                                    capture_sound.play()
                         if not moveMade:
                             playerClicks = [sqSelected]
             # key handlers
@@ -207,6 +233,7 @@ def main():
                     moveMade = False
                     animate = False
                     gameOver = False
+                    gameEndSoundPlayed = False
                     if AIThinking:
                         moveFinderProcess.terminate()
                         AIThinking = False
@@ -227,6 +254,12 @@ def main():
                 if AIMove is None:
                     AIMove = aimove.findRandomMove(validMoves)
                 gs.makeMove(AIMove)
+                if gs.inCheck():
+                    check_sound.play()
+                elif move.pieceCaptured == "--":
+                    move_sound_opponent.play()
+                else:
+                    capture_sound.play()
                 moveMade = True
                 animate = True
                 AIThinking = False
@@ -242,12 +275,54 @@ def main():
 
         if gs.checkMate or gs.staleMate:
             gameOver = True
+            if not gameEndSoundPlayed:
+                game_end_sound.play()
+                gameEndSoundPlayed = True
             text = 'Stalemate!' if gs.staleMate else 'Black wins by checkmate!' if gs.whiteToMove else 'White wins by checkmate!'
             drawEndGameText(screen, text)
 
         clock.tick(MAX_FPS)
         p.display.flip()
     mainMenu()
+
+
+def drawPromotionMenu(screen, move):
+    width = SQ_SIZE
+    height = 4*SQ_SIZE  # Adjusted height to fit four pieces
+    if move.endRow > 3:
+        menu_rect = p.Rect(move.endCol * SQ_SIZE, (move.endRow - 3) * SQ_SIZE, width, height)
+    else:
+        menu_rect = p.Rect(move.endCol * SQ_SIZE, move.endRow * SQ_SIZE, width, height)
+    # Drawing the rectangle for the menu
+    p.draw.rect(screen, p.Color('white'), menu_rect)
+
+    # Load images for promotion options
+    piece_options = ['Q', 'R', 'B', 'N']
+    images = {
+        'Q': p.transform.scale(p.image.load(f'images/{move.pieceMoved[0]}Q.png'), (SQ_SIZE, SQ_SIZE)),
+        'R': p.transform.scale(p.image.load(f'images/{move.pieceMoved[0]}R.png'), (SQ_SIZE, SQ_SIZE)),
+        'B': p.transform.scale(p.image.load(f'images/{move.pieceMoved[0]}B.png'), (SQ_SIZE, SQ_SIZE)),
+        'N': p.transform.scale(p.image.load(f'images/{move.pieceMoved[0]}N.png'), (SQ_SIZE, SQ_SIZE)),
+    }
+
+    # Draw each image in the vertical menu
+    for i, piece in enumerate(piece_options):
+        screen.blit(images[piece], (menu_rect.x, menu_rect.y + i * SQ_SIZE))
+
+    p.display.flip()
+    return piece_options, menu_rect
+
+
+def getPromotionChoice(screen, move):
+    piece_options, menu_rect = drawPromotionMenu(screen, move)
+    while True:
+        for e in p.event.get():
+            if e.type == p.MOUSEBUTTONDOWN:
+                x, y = p.mouse.get_pos()
+                if menu_rect.collidepoint(x, y):
+                    index = (y - menu_rect.y) // 64  # Determine which option was clicked
+                    if 0 <= index < len(piece_options):
+                        return piece_options[index]
 
 
 def drawGameState(screen, gs, validMoves, sqSelected, moveLogFont):
@@ -335,8 +410,9 @@ def animateMove(move, screen, board, clock):
     global colors
     dR = move.endRow - move.startRow
     dC = move.endCol - move.startCol
-    framesPerSquare = 10  # frames to move one square
-    frameCount = (abs(dR) + abs(dC)) * framesPerSquare
+    distance = abs(dR) + abs(dC)
+    framesPerSquare = max(3, 10 - distance)  # frames to move one square
+    frameCount = distance * framesPerSquare
     for frame in range(frameCount + 1):
         r, c = (move.startRow + dR*frame/frameCount, move.startCol + dC*frame/frameCount)
         drawBoard(screen)

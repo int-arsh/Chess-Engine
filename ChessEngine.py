@@ -27,7 +27,7 @@ class GameState:
         self.castleRightsLog = [CastleRights(self.currentCastlingRight.wks, self.currentCastlingRight.bks,
                                              self.currentCastlingRight.wqs, self.currentCastlingRight.bqs)]
 
-    def makeMove(self, move):
+    def makeMove(self, move, getPromotionChoice=None, screen=None):
         self.board[move.startRow][move.startCol] = "--"
         self.board[move.endRow][move.endCol] = move.pieceMoved
         self.moveLog.append(move)
@@ -39,8 +39,9 @@ class GameState:
             self.blackKingLocation = (move.endRow, move.endCol)
 
         # pawn promotion
-        if move.isPawnPromotion:
-            self.board[move.endRow][move.endCol] = move.pieceMoved[0] + 'Q'
+        if move.isPawnPromotion and getPromotionChoice and screen:
+            promotion_choice = getPromotionChoice(screen, move)
+            self.board[move.endRow][move.endCol] = move.pieceMoved[0] + promotion_choice
 
         # enpassant move
         if move.isEnpassantMove:
