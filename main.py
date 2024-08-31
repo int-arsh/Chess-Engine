@@ -1,4 +1,5 @@
 import pygame as p
+import asyncio
 import ChessEngine, aimove, button
 from multiprocessing import Process, Queue
 
@@ -18,17 +19,17 @@ FONT_COLOR = (0, 0, 0)
 font = p.font.Font(None, 20)
 
 # Load sound files
-start_sound = p.mixer.Sound('sounds/game-start.mp3')
-move_sound = p.mixer.Sound('sounds/move-self.mp3')
-move_sound_opponent = p.mixer.Sound('sounds/move-opponent.mp3')
-castle_sound = p.mixer.Sound('sounds/castle.mp3')
-capture_sound = p.mixer.Sound('sounds/capture.mp3')
-check_sound = p.mixer.Sound('sounds/move-check.mp3')
-promote_sound = p.mixer.Sound('sounds/promote.mp3')
-game_end_sound = p.mixer.Sound('sounds/game-end.mp3')
+start_sound = p.mixer.Sound('sounds/game-start.ogg')
+move_sound = p.mixer.Sound('sounds/move-self.ogg')
+move_sound_opponent = p.mixer.Sound('sounds/move-opponent.ogg')
+castle_sound = p.mixer.Sound('sounds/castle.ogg')
+capture_sound = p.mixer.Sound('sounds/capture.ogg')
+check_sound = p.mixer.Sound('sounds/move-check.ogg')
+promote_sound = p.mixer.Sound('sounds/promote.ogg')
+game_end_sound = p.mixer.Sound('sounds/game-end.ogg')
 
 
-def mainMenu():
+async def mainMenu():
     screen = p.display.set_mode((BOARD_WIDTH, BOARD_HEIGHT))
     p.display.set_caption("Main Menu")
     clock = p.time.Clock()
@@ -90,7 +91,7 @@ def mainMenu():
         if menu_state == "play":
             if passnplay_button.draw(screen) and not clicked:
                 run = False
-                main(True, True)
+                await main(True, True)
                 clicked = True
                 p.time.delay(150)
             if vsAI_button.draw(screen) and not clicked:
@@ -123,11 +124,11 @@ def mainMenu():
                 clicked = True
                 run = False
                 p.time.delay(150)
-                main(True, False)
+                await main(True, False)
             if black_button.draw(screen) and not clicked:
                 clicked = True
                 run = False
-                main(False, True)
+                await main(False, True)
                 p.time.delay(150)
             if back_button.draw(screen) and not clicked:
                 menu_state = "AI"
@@ -142,6 +143,7 @@ def mainMenu():
 
         p.display.flip()
         clock.tick(MAX_FPS)
+        await asyncio.sleep(0)
 
 
 
@@ -151,7 +153,7 @@ def loadImages():
         IMAGES[piece] = p.transform.scale(p.image.load('images/'+piece+'.png'), (SQ_SIZE, SQ_SIZE))
     # print(IMAGES)
 
-def main(playerOne=True, playerTwo=False):
+async def main(playerOne=True, playerTwo=False):
     screen = p.display.set_mode((BOARD_WIDTH + MOVE_LOG_PANEL_WIDTH, BOARD_HEIGHT))
     p.display.set_caption("Main")
     clock = p.time.Clock()
@@ -282,8 +284,9 @@ def main(playerOne=True, playerTwo=False):
             drawEndGameText(screen, text)
 
         clock.tick(MAX_FPS)
+        await asyncio.sleep(0)
         p.display.flip()
-    mainMenu()
+    await mainMenu()
 
 
 def drawPromotionMenu(screen, move):
@@ -440,4 +443,4 @@ def drawEndGameText(screen, text):
 
 
 if __name__ == '__main__':
-    mainMenu()
+    asyncio.run(mainMenu())
