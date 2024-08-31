@@ -1,6 +1,7 @@
 # Chess Engine
 
-A chess engine created in Python using the Pygame library. This project allows users to play chess against an AI or another player, with a graphical interface powered by Pygame.
+A chess engine created in Python using the Pygame library. This project allows users to play chess against an AI or another player, with a graphical interface powered by Pygame. 
+I followed Eddie Tutorial while adding features and improvement.
 
 <img src="https://images.chesscomfiles.com/uploads/v1/images_users/tiny_mce/SamCopeland/phpuTejFE.gif" width="200" height="200">
 
@@ -41,4 +42,4 @@ A chess engine created in Python using the Pygame library. This project allows u
 
 To start the chess engine, run the following command:
 ```sh
-ChessMain.py
+main.py
